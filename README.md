@@ -9,8 +9,8 @@ ${\textsf{\color{magenta}FashionSwap}}$ is an innovative AI project that focuses
 
 ### Team Members
 - [Fabian Perez ](https://github.com/factral)
-- Paula Arguelo
-- Miguel Angel
+- [Paula Arguello ](https://github.com/paularguello07)
+- [Miguel Molina ](https://github.com/MiguelAngMolina)
 
 ## Key Features
 
