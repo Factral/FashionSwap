@@ -91,12 +91,12 @@ def train(model, data_loader, optimizer, lossCrossE):
     running_loss = 0.0
     for inputs, labels in tqdm(data_loader):
         inputs = inputs.to(device)
-        labels = labels.to(device)
+        labels = labels.to(device).float()
 
         optimizer.zero_grad()
 
         outputs = model(inputs)
-
+        
         loss = lossCrossE(outputs, labels) 
 
         loss.backward()
@@ -125,9 +125,8 @@ def validate(model, data_loader, lossCrossE):
     
     for inputs, labels in tqdm(data_loader):
         inputs = inputs.to(device)
-        labels = labels.to(device)
+        labels = labels.to(device).float()
         outputs = model(inputs)
-
         
         loss = lossCrossE(outputs, labels) 
 
@@ -148,7 +147,7 @@ def validate(model, data_loader, lossCrossE):
     return val_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
 best_val_ce = 1000
-lr_change_epochs = {70: 0.1, 100: 0.1}
+#lr_change_epochs = {70: 0.1, 100: 0.1}
 
 for epoch in range(args.epochs):
     print(f'Epoch {epoch + 1}\n-------------------------------')

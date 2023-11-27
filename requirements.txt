@@ -8,3 +8,5 @@ tqdm
 albumentations
 segmentation_models_pytorch
 datasets
+wandb
+torhinfo
