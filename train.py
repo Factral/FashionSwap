@@ -112,8 +112,8 @@ def train(model, data_loader, optimizer, lossCrossE):
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
-    ax[1].imshow(get_image(labels[0]).cpu())
-    ax[2].imshow(get_image(outputs[0]).cpu())
+    ax[1].imshow(labels[0].cpu())
+    ax[2].imshow(outputs[0].cpu())
 
     return epoch_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
@@ -142,8 +142,8 @@ def validate(model, data_loader, lossCrossE):
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
-    ax[1].imshow(get_image(labels[0]).cpu())
-    ax[2].imshow(get_image(outputs[0]).cpu())
+    ax[1].imshow(labels[0].cpu())
+    ax[2].imshow(outputs[0].cpu())
     
     return val_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
