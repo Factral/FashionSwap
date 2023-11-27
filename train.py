@@ -153,6 +153,7 @@ lr_change_epochs = {70: 0.1, 100: 0.1}
 for epoch in range(args.epochs):
     print(f'Epoch {epoch + 1}\n-------------------------------')
     epoch_loss, train_acc, train_ce, figTrain  = train(model_unet, data_loader_train, optimizer, lossCrossE)
+    
     if not args.novalidation:
         val_loss, test_acc, test_ce, fig = validate(model_unet, data_loader_test, lossCrossE)
 
@@ -162,12 +163,6 @@ for epoch in range(args.epochs):
             torch.save(model_unet.state_dict(), os.path.join(args.save_dir, args.exp_name+'_best_weights.pth'))
             print("Best model saved with test CE: ", best_val_ce)
     
-
-    if epoch in lr_change_epochs:
-        for param_group in optimizer.param_groups:
-            param_group['lr'] *= lr_change_epochs[epoch]
-        print(f"Learning Rate ajustado a: {optimizer.param_groups[0]['lr']}")
-
     if args.novalidation:
         print(f'Epoch {epoch} train loss: {epoch_loss:.4f}')
     else:
