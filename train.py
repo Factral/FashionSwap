@@ -82,7 +82,6 @@ lossCrossE = nn.CrossEntropyLoss()
 #lossDICE = smp.losses.DiceLoss('multiclass')
 
 metrics = Metrics()
-
 def train(model, data_loader, optimizer, lossCrossE):
     model_unet.train()
     acc = []
@@ -136,6 +135,11 @@ def validate(model, data_loader, lossCrossE):
 
     val_loss = running_loss / len(data_loader.dataset)
     scheduler.step(val_loss)
+
+    print(labels.shape)
+    print(labels.min(), labels.max())
+    print(outputs.shape)
+    print(outputs.min(), outputs.max())
 
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
