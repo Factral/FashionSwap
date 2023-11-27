@@ -59,7 +59,7 @@ aug_transform_test = A.Compose([
     ToTensorV2()
 ])
 
-dataset_clean = load_from_disk('clean-train/train/')
+dataset_clean = load_from_disk('../clean-train/train/')
 dataset_clean = dataset_clean.with_format('np')
 
 dataset_train_test = dataset_clean.train_test_split(test_size=0.2, seed=42)
