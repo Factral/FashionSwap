@@ -18,9 +18,9 @@ class SegmentationDataset(Dataset):
         item['mask'] = np.array(item['mask'])
 
         if self.transform:
-            transformed = self.transform(image=item['target'], mask=item['mask'])
+            transformed = self.transform(image=item['target'])
             image = transformed["image"]
-            mask = transformed["mask"]
+            mask = torch.from_numpy(item['mask']) / 255
         else:
             image = torch.from_numpy(item['target'])
             mask = torch.from_numpy(item['mask'])
