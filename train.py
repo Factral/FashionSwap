@@ -150,7 +150,7 @@ def validate(model, data_loader, lossCrossE):
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
     ax[1].imshow(labels[0].cpu())
     ax[2].imshow(outputs[0].cpu())
-    python train.py --exp_name primerintento --batch_size 8 
+
     return val_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
 best_val_ce = 1000
