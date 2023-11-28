@@ -116,7 +116,7 @@ def train(model, data_loader, optimizer, lossCrossE):
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
     ax[1].imshow(labels[0].squeeze().cpu())
-    ax[2].imshow(outputs[0].squeeze().cpu())
+    ax[2].imshow(outputs[0].squeeze().detach().cpu())
     plt.show()
 
 
@@ -155,7 +155,7 @@ def validate(model, data_loader, lossCrossE):
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
     ax[1].imshow(labels[0].squeeze().cpu())
-    ax[2].imshow(outputs[0].squeeze().cpu())
+    ax[2].imshow(outputs[0].squeeze().detach().cpu())
 
     return val_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
