@@ -114,8 +114,6 @@ def train(model, data_loader, optimizer, lossCrossE):
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
     ax[1].imshow(labels[0].squeeze().cpu())
     ax[2].imshow(outputs[0].squeeze().detach().cpu())
-    plt.show()
-
 
     return epoch_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
@@ -129,9 +127,6 @@ def validate(model, data_loader, lossCrossE):
         inputs = inputs.to(device)
         labels = labels.to(device).float()
         outputs = model(inputs)
-
-        print(labels.shape)
-        print(outputs.shape)
         
         loss = lossCrossE(outputs, labels) 
 
@@ -143,10 +138,6 @@ def validate(model, data_loader, lossCrossE):
     val_loss = running_loss / len(data_loader.dataset)
     scheduler.step(val_loss)
 
-    print(labels.shape)
-    print(labels.min(), labels.max())
-    print(outputs.shape)
-    print(outputs.min(), outputs.max())
 
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
