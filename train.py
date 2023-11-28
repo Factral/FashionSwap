@@ -95,9 +95,6 @@ def train(model, data_loader, optimizer, lossCrossE):
         optimizer.zero_grad()
 
         outputs = model(inputs)
-
-        print(labels.min(), labels.max())
-        print(outputs.min(), outputs.max())
         
         loss = lossCrossE(outputs, labels) 
 
