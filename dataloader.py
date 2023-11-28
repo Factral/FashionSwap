@@ -25,8 +25,8 @@ class SegmentationDataset(Dataset):
             image = torch.from_numpy(item['target'])
             mask = torch.from_numpy(item['mask'])
 
-        mask = mask[:,:,0].unsqueeze(0)
+        mask = mask[:,:,0]
 
-        return image, mask.permute(1, 2, 0).squeeze().long()
+        return image, mask
     
 
