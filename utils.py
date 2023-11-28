@@ -29,12 +29,6 @@ def save_images(outputs, save_dir, idx, name):
             im.imsave(os.path.join(save_dir, f'{name}_{id}.png'), image)
         
 
-def get_image(mask):
-    
-    preds = torch.argmax(mask, dim=0)
-    preds = preds.float()
-        
-    return preds
 
 
 

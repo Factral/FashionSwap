@@ -18,13 +18,15 @@ class SegmentationDataset(Dataset):
         item['mask'] = np.array(item['mask'])
 
         if self.transform:
-            transformed = self.transform(image=item['target'])
+            transformed = self.transform(image=item['target'], mask=item['mask'])
             image = transformed["image"]
-            mask = torch.from_numpy(item['mask']) / 255
+            mask = transformed["mask"]
         else:
             image = torch.from_numpy(item['target'])
             mask = torch.from_numpy(item['mask'])
 
         mask = mask[:,:,0].unsqueeze(0)
 
-        return image, mask
+        return image, mask.permute(1, 2, 0).squeeze().long()
+    
+

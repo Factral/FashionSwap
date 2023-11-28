@@ -38,8 +38,8 @@ parser.add_argument('--weights', type=str, default='')
 parser.add_argument('--novalidation', default=False, action='store_true')
 
 args = parser.parse_args()
-wandb.init(project="fashionswap", entity="deepbeauty", name=args.exp_name)
-wandb.config.update(args)
+#wandb.init(project="fashionswap", entity="deepbeauty", name=args.exp_name)
+#wandb.config.update(args)
 
 device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 
@@ -49,7 +49,7 @@ model_unet.to(device)
 aug_transform = A.Compose([
     A.HorizontalFlip(p=0.5),
     #A.VerticalFlip(p=0.5),
-    A.Rotate(limit=[10, 60], p=0.4, interpolation=cv2.INTER_NEAREST),
+    A.Rotate(limit=[10, 60], p=0.5, border_mode=cv2.BORDER_CONSTANT),
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2()
 ])
@@ -68,6 +68,7 @@ dataset_test = dataset_train_test['test']
 
 dataset_train = SegmentationDataset(dataset_train, aug_transform)
 data_loader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True)
+
 
 if not args.novalidation:
     dataset_test = SegmentationDataset(dataset_test,  aug_transform_test)
@@ -100,6 +101,7 @@ def train(model, data_loader, optimizer, lossCrossE):
         loss.backward()
         optimizer.step()
 
+
         running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(data_loader.dataset)
 
@@ -110,8 +112,10 @@ def train(model, data_loader, optimizer, lossCrossE):
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
     ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
-    ax[1].imshow(get_image(labels[0]).cpu())
-    ax[2].imshow(get_image(outputs[0]).cpu())
+    ax[1].imshow(labels[0].cpu())
+    ax[2].imshow(outputs[0].cpu())
+    plt.show()
+
 
     return epoch_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
 
