@@ -135,7 +135,7 @@ def validate(model, data_loader, lossCrossE):
 
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
     idx = random.randint(0, len(inputs)-1)
-    inputs[0] =  (inputs[idx] - inputs[idx].min()) / (inputs[idx].max() - inputs[idx].min())
+    inputs[idx] =  (inputs[idx] - inputs[idx].min()) / (inputs[idx].max() - inputs[idx].min())
     ax[0].imshow(inputs[idx].permute(1, 2, 0).cpu())
     ax[1].imshow(labels[idx].squeeze().cpu())
     ax[2].imshow(outputs[idx].squeeze().detach().cpu())
