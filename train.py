@@ -38,8 +38,8 @@ parser.add_argument('--weights', type=str, default='')
 parser.add_argument('--novalidation', default=False, action='store_true')
 
 args = parser.parse_args()
-#wandb.init(project="fashionswap", entity="deepbeauty", name=args.exp_name)
-#wandb.config.update(args)
+wandb.init(project="fashionswap", entity="deepbeauty", name=args.exp_name)
+wandb.config.update(args)
 
 device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 
@@ -62,7 +62,7 @@ aug_transform_test = A.Compose([
 dataset_clean = load_from_disk('../clean-train/train/')
 dataset_clean = dataset_clean.with_format('np')
 
-dataset_train_test = dataset_clean.train_test_split(test_size=0.2, seed=42)
+dataset_train_test = dataset_clean.train_test_split(test_size=0.1, seed=42)
 dataset_train = dataset_train_test['train']
 dataset_test = dataset_train_test['test']
 

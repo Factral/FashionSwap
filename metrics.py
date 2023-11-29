@@ -16,7 +16,7 @@ class Metrics:
         return acc
     
     def cross_entropy(self, outputs, mask):
-        ce = F.cross_entropy(outputs.cpu(), mask.cpu())
+        ce = F.binary_cross_entropy(outputs.cpu(), mask.cpu())
         return ce
     
     def mse(self, outputs, mask):
