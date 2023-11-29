@@ -10,12 +10,12 @@ from metrics import Metrics
 from utils import *
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from datasets.load import load_from_disk
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_path', type=str, default='deepbeauty8_model')
-parser.add_argument('--data_dir', type=str, default='Dataset_woDuplicates')
+parser.add_argument('--model_path', type=str, default='primerintento_best_model')
 parser.add_argument('--save_dir', type=str, default='predictions')
-parser.add_argument('--batch_size', type=int, default=32)
+parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--device', type=int, default=0, help='Número de GPU a usar (por defecto: 0)')
 
 args = parser.parse_args()
@@ -26,15 +26,21 @@ def load_model(model_path, device):
     return model
 
 
-img_ids = np.load(os.path.join('results/', 'test_ids.npy'))
 
 aug_transform_test = A.Compose([
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2()
 ])
 
-dataset = SegmentationDataset(img_ids, args.data_dir, aug_transform=aug_transform_test)
-data_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
+dataset_clean = load_from_disk('../clean-train/train/')
+dataset_clean = dataset_clean.with_format('np')
+
+dataset_train_test = dataset_clean.train_test_split(test_size=0.2, seed=42)
+dataset_test = dataset_train_test['test']
+print(len(dataset_test), len(dataset_train_test['train']))
+
+dataset_test = SegmentationDataset(dataset_test,  aug_transform_test)
+data_loader = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False)
 device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 
 
@@ -49,22 +55,24 @@ save_path = args.save_dir+ '/'+ args.model_path+ '/'
 if os.path.exists(save_path) == False:
     os.mkdir(save_path)
 
+ido = 0
+idi = 0
+
 for i, (inputs, mask) in enumerate(data_loader):
     inputs = inputs.to(device)
     mask = mask.to(device)
 
     with torch.no_grad():
         outputs = model(inputs)
-        outputs = multiply_mask(outputs, mask)
-
-        save_images(outputs, save_path, i, "output")
-        save_images(mask, save_path, i, "mask")
-        save_images(inputs, save_path, i, "input")
         
-        acc_, ce_ = metrics.all_metrics(outputs, mask)
-        acc.append(acc_.item())
+        ido = save_images(outputs, save_path, ido, "output")
+        #save_images(mask, save_path, i, "mask")
+        idi = save_images(inputs, save_path, idi, "input")
+        
+        ce_ = metrics.all_metrics(outputs, mask)
+
         ce.append(ce_.item())
     
-print(f'Accuracy: {sum(acc)/len(acc)}')
+
 print(f'Cross Entropy: {sum(ce)/len(ce)}')
 
