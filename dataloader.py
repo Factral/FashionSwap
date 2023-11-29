@@ -20,7 +20,7 @@ class SegmentationDataset(Dataset):
         if self.transform:
             transformed = self.transform(image=item['target'], mask=item['mask'])
             image = transformed["image"]
-            mask = transformed["mask"]
+            mask = transformed["mask"] / 255.0
         else:
             image = torch.from_numpy(item['target'])
             mask = torch.from_numpy(item['mask'])
@@ -28,3 +28,5 @@ class SegmentationDataset(Dataset):
         mask = mask[:,:,0].unsqueeze(0)
 
         return image, mask
+    
+
