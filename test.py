@@ -13,7 +13,7 @@ from albumentations.pytorch import ToTensorV2
 from datasets.load import load_from_disk
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_path', type=str, default='primerintento')
+parser.add_argument('--model_path', type=str, default='primerintento_best_model')
 parser.add_argument('--save_dir', type=str, default='predictions')
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--device', type=int, default=0, help='Número de GPU a usar (por defecto: 0)')

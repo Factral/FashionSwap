@@ -9,6 +9,7 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 from skimage import morphology
+from skimage import img_as_uint
 
 def save_images(outputs, save_dir, id, name): 
 
@@ -16,7 +17,7 @@ def save_images(outputs, save_dir, id, name):
         if name != "input":
             image = outputs[j].detach()
             
-            im.imsave(os.path.join(save_dir, f'{name}_{id}.png'), image.cpu())
+            im.imsave(os.path.join(save_dir, f'{name}_{id}.png'), img_as_uint(image.cpu()))
             
         else:
             image = outputs[j]
