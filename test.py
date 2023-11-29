@@ -26,18 +26,18 @@ def load_model(model_path, device):
     return model
 
 
-img_ids = np.load(os.path.join('results/', 'test_ids.npy'))
 
 aug_transform_test = A.Compose([
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2()
 ])
 
-dataset_clean = load_from_disk('clean-train/train/')
+dataset_clean = load_from_disk('../clean-train/train/')
 dataset_clean = dataset_clean.with_format('np')
 
 dataset_train_test = dataset_clean.train_test_split(test_size=0.2, seed=42)
 dataset_test = dataset_train_test['test']
+print(len(dataset_test), len(dataset_train_test['train']))
 
 dataset_test = SegmentationDataset(dataset_test,  aug_transform_test)
 data_loader = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False)
@@ -69,10 +69,10 @@ for i, (inputs, mask) in enumerate(data_loader):
         #save_images(mask, save_path, i, "mask")
         idi = save_images(inputs, save_path, idi, "input")
         
-        (acc_, ce_) = metrics.all_metrics(outputs, mask)
-        acc.append(acc_.item())
+        ce_ = metrics.all_metrics(outputs, mask)
+
         ce.append(ce_.item())
     
-print(f'Accuracy: {sum(acc)/len(acc)}')
+
 print(f'Cross Entropy: {sum(ce)/len(ce)}')
 

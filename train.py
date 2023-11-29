@@ -26,7 +26,7 @@ from torchinfo import summary
 from datasets.load import load_from_disk
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--epochs', type=int, default=100)
+parser.add_argument('--epochs', type=int, default=20)
 parser.add_argument('--exp_name', type=str, default="prueba_multiplicacion")
 parser.add_argument('--batch_size', type=int, default=8)
 parser.add_argument('--lr', type=float, default=0.001)  
@@ -69,7 +69,6 @@ dataset_test = dataset_train_test['test']
 dataset_train = SegmentationDataset(dataset_train, aug_transform)
 data_loader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True)
 
-
 if not args.novalidation:
     dataset_test = SegmentationDataset(dataset_test,  aug_transform_test)
     data_loader_test = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False)
@@ -85,7 +84,6 @@ lossCrossE = nn.BCELoss()
 metrics = Metrics()
 def train(model, data_loader, optimizer, lossCrossE):
     model_unet.train()
-    acc = []
     ce = []
     running_loss = 0.0
     for inputs, labels in tqdm(data_loader):
@@ -101,24 +99,22 @@ def train(model, data_loader, optimizer, lossCrossE):
         loss.backward()
         optimizer.step()
 
-
         running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(data_loader.dataset)
 
-        (acc_, ce_) = metrics.all_metrics(outputs, labels)
-        acc.append(acc_.item())
+        ce_ = metrics.all_metrics(outputs, labels)
         ce.append(ce_.item())
 
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
-    inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
-    ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
-    ax[1].imshow(labels[0].squeeze().cpu())
-    ax[2].imshow(outputs[0].squeeze().detach().cpu())
+    idx = random.randint(0, len(inputs)-1)
+    inputs[idx] =  (inputs[idx] - inputs[idx].min()) / (inputs[idx].max() - inputs[idx].min())
+    ax[0].imshow(inputs[idx].permute(1, 2, 0).cpu())
+    ax[1].imshow(labels[idx].squeeze().cpu())
+    ax[2].imshow(outputs[idx].squeeze().detach().cpu())
 
-    return epoch_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
+    return epoch_loss, sum(ce)/len(ce), fig
 
 def validate(model, data_loader, lossCrossE):
-    acc = []
     ce = []
     model.eval()
     running_loss = 0.0
@@ -131,31 +127,29 @@ def validate(model, data_loader, lossCrossE):
         loss = lossCrossE(outputs, labels) 
 
         running_loss += loss.item() * inputs.size(0)
-        acc_, ce_ = metrics.all_metrics(outputs, labels)
-        acc.append(acc_.item())
+        ce_ = metrics.all_metrics(outputs, labels)
         ce.append(ce_.item())
 
     val_loss = running_loss / len(data_loader.dataset)
     scheduler.step(val_loss)
 
-
     fig, ax = plt.subplots(1, 3, figsize=(30,10))
-    inputs[0] =  (inputs[0] - inputs[0].min()) / (inputs[0].max() - inputs[0].min())
-    ax[0].imshow(inputs[0].permute(1, 2, 0).cpu())
-    ax[1].imshow(labels[0].squeeze().cpu())
-    ax[2].imshow(outputs[0].squeeze().detach().cpu())
+    idx = random.randint(0, len(inputs)-1)
+    inputs[0] =  (inputs[idx] - inputs[idx].min()) / (inputs[idx].max() - inputs[idx].min())
+    ax[0].imshow(inputs[idx].permute(1, 2, 0).cpu())
+    ax[1].imshow(labels[idx].squeeze().cpu())
+    ax[2].imshow(outputs[idx].squeeze().detach().cpu())
 
-    return val_loss, sum(acc)/len(acc) , sum(ce)/len(ce), fig
+    return val_loss, sum(ce)/len(ce), fig
 
-best_val_ce = 1000
-#lr_change_epochs = {70: 0.1, 100: 0.1}
+best_val_ce = 10000
 
 for epoch in range(args.epochs):
     print(f'Epoch {epoch + 1}\n-------------------------------')
-    epoch_loss, train_acc, train_ce, figTrain  = train(model_unet, data_loader_train, optimizer, lossCrossE)
+    epoch_loss, train_ce, figTrain  = train(model_unet, data_loader_train, optimizer, lossCrossE)
     
     if not args.novalidation:
-        val_loss, test_acc, test_ce, fig = validate(model_unet, data_loader_test, lossCrossE)
+        val_loss,  test_ce, fig = validate(model_unet, data_loader_test, lossCrossE)
 
         if test_ce < best_val_ce:
             best_val_ce = test_ce
@@ -172,13 +166,13 @@ for epoch in range(args.epochs):
         wandb.log({'epochs': epoch,
                 'lr': optimizer.param_groups[0]['lr'],
                 'train_loss': epoch_loss,
-                'train_acc': train_acc, 'train_ce': train_ce, 'fig': figTrain})
+                 'train_ce': train_ce, 'fig': figTrain})
     else:
         wandb.log({'epochs': epoch,
                 'lr': optimizer.param_groups[0]['lr'],
                 'train_loss': epoch_loss, 'val_loss': val_loss,
-                'train_acc': train_acc, 'train_ce': train_ce,
-                'test_acc': test_acc, 'test_ce': test_ce,
+                 'train_ce': train_ce,
+                'test_ce': test_ce,
                 'fig': fig})
 
     if not os.path.exists(os.path.join(args.save_dir)):
