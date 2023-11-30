@@ -28,6 +28,6 @@ class Metrics:
             mse = self.mse(outputs, mask)
             return mse
         
-        acc = self.accuracy(outputs, mask)
+        ce = self.cross_entropy(outputs, mask)
 
-        return acc
+        return ce
