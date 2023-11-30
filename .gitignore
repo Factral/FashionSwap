@@ -1,3 +1,5 @@
 /clean-train/
 /wandb/
 **/__pycache__/
+/results/
+/predictions/

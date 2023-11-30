@@ -11,6 +11,8 @@ from torchvision.models import vgg19, VGG19_Weights
 
 import copy
 
+from datasets.load import load_from_disk
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.set_default_device(device)
 
@@ -23,11 +25,8 @@ loader = transforms.Compose([
 
 def image_loader(image_name):
     image = Image.open(image_name)
-    # fake batch dimension required to fit network's input dimensions
     image = loader(image).unsqueeze(0)
     return image.to(device, torch.float)
-
-from datasets.load import load_from_disk
 
 dataset_clean = load_from_disk('../clean-train/train/')
 dataset_clean = dataset_clean.with_format('np')
@@ -42,6 +41,10 @@ style_image = Image.fromarray(style_image)
 style_image = loader(style_image).unsqueeze(0)
 style_img = style_image.to(device, torch.float)
 
+mask = dataset_clean[0]['mask']
+mask = Image.fromarray(mask)
+mask = loader(mask).unsqueeze(0)
+mask = mask.to(device, torch.float)
 
 unloader = transforms.ToPILImage()  
 
@@ -54,7 +57,7 @@ def imshow(tensor, title=None):
     plt.imshow(image)
     if title is not None:
         plt.title(title)
-    plt.pause(5)
+    plt.pause(1)
 
 
 plt.figure()
@@ -200,8 +203,8 @@ def get_input_optimizer(input_img):
 
 
 def run_style_transfer(cnn, normalization_mean, normalization_std,
-                       content_img, style_img, input_img, num_steps=300,
-                       style_weight=1000000, content_weight=1):
+                       content_img, style_img, input_img, num_steps=1000,
+                       style_weight=1000000, content_weight=25):
     """Run the style transfer."""
     print('Building the style transfer model..')
     model, style_losses, content_losses = get_style_model_and_losses(cnn,
@@ -263,6 +266,15 @@ output = run_style_transfer(cnn, cnn_normalization_mean, cnn_normalization_std,
                             content_img, style_img, input_img)
 
 plt.figure()
+
+
+imshow(output, title='Output Image original')
+
+plt.figure()
+
+# multiply output by mask and add content to original image
+output = output * mask + (content_img * (1 - mask))
+
 imshow(output, title='Output Image')
 
 # sphinx_gallery_thumbnail_number = 4
