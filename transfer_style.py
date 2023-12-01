@@ -54,6 +54,10 @@ def imshow(tensor, title=None):
     plt.imshow(image)
     if title is not None:
         plt.title(title)
+
+    #save image to disk, not the fig, the image
+    plt.imsave(f'content{title}.jpg', image)
+
     plt.pause(5)
 
 
